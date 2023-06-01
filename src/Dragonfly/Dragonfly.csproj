@@ -18,8 +18,8 @@
 		<RepositoryUrl>https://github.com/hfloyd/Dragonfly.Umbraco10.DeployTools</RepositoryUrl>
 
 		<PackageIcon>Dragonfly-DeployTools-128.png</PackageIcon>
-		<PackageTags>Umbraco;Umbraco-Deploy;umbraco-marketplace;Umbraco-10</PackageTags>
-		<PackageReleaseNotes>Various Updates</PackageReleaseNotes>
+		<PackageTags>Umbraco;Umbraco-Deploy;umbraco-marketplace;Umbraco-10;Umbraco-11;Umbraco-12</PackageTags>
+		<PackageReleaseNotes>First v10 Release</PackageReleaseNotes>
 
 
 	</PropertyGroup>
@@ -68,17 +68,16 @@
 	<!-- Packages-->
 	<ItemGroup>
 		<PackageReference Include="Dragonfly.Net5" Version="1.5.0" />
-			<PackageReference Include="Dragonfly.Umbraco9" Version="1.5.0"/>
-		<PackageReference Include="Umbraco.Cms.Core" Version="[10.0.1,11.0.0]" />
-		<PackageReference Include="Umbraco.Cms.Web.Website" Version="[10.0,11.0]" PrivateAssets="All" />
-		<PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="[10.0,11.0]" PrivateAssets="All" />
+			<PackageReference Include="Dragonfly.Umbraco9" Version="1.7.0" />
+		<PackageReference Include="Umbraco.Cms.Core" Version="[10.0.1,13.0.0]" />
+		<PackageReference Include="Umbraco.Cms.Web.Website" Version="[10.0.1,13.0]" PrivateAssets="All" />
+		<PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="[10.0.1,13.0]" PrivateAssets="All" />
 	</ItemGroup>
 
 <!-- Included/Excluded Files -->
 	<ItemGroup>
 		<Compile Remove="DeployToolsConfig.cs" />
-		<Compile Remove="Umbraco.DeployTools\ControllerExtensions.cs" />
-		<Compile Remove="Umbraco.DeployTools\RenderPartialToStringExtensions.cs" />
+		<Compile Remove="UmbracoDeployTools\ControllerExtensions.cs" />
 	</ItemGroup>
 
 
