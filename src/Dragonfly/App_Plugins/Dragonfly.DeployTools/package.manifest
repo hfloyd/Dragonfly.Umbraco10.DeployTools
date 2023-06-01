@@ -1,2 +1,17 @@
 ﻿{
+    "dashboards": [
+        {
+            "alias": "Dragonfly.DeployTools",
+            "view": "~/App_Plugins/Dragonfly.DeployTools/dashboard.html",
+            "sections": [ "content" ],
+            "weight": 100
+        }
+    ],
+    "javascript": [
+        "/App_Plugins/Dragonfly.DeployTools/DragonflyDeployTools.controller.js"
+    ],
+    "css": [
+        "/App_Plugins/Dragonfly.DeployTools/DragonflyDashboard.css"
+    ]
+
 }

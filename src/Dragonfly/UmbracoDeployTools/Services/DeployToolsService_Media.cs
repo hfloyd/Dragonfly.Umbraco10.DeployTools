@@ -1,12 +1,11 @@
-﻿namespace Dragonfly.Umbraco9DeployTools.Services
+﻿namespace Dragonfly.UmbracoDeployTools
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
     using Dragonfly.NetModels;
-    using Dragonfly.Umbraco9DeployTools.Models;
+    using Dragonfly.UmbracoDeployTools.Models;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
     using Umbraco.Cms.Core;
@@ -52,10 +51,12 @@
             }
 
             var localSavePathVirtual = EnvironmentFilePath(NodesType.Media, targetEnvironment);
-            var localSavePathPhysical = _FileHelperService.GetMappedPath(localSavePathVirtual);
+            var localSavePathPhysical = "";
+            var pathIsMappableStatus=_FileHelperService.TryGetMappedPathWithStatus(localSavePathVirtual, out localSavePathPhysical);
             status.Message = $"Fetching MediaNodesData from {targetEnvironment.Name} to '{localSavePathVirtual}'";
-            status.MessageDetails = localSavePathPhysical;
+            status.DetailedMessages.Add(localSavePathPhysical);
             status.ObjectName = remoteFileAccessUrl;
+            status.InnerStatuses.Add(pathIsMappableStatus);
 
             try
             {
@@ -66,7 +67,7 @@
             catch (Exception e)
             {
                 status.Success = false;
-                status.RelatedException = e;
+                status.SetRelatedException(e);
                 // throw;
             }
 
@@ -101,7 +102,7 @@
             {
                 msg.Success = false;
                 msg.Message = $"Unable to read data from '{fullFilename}'.";
-                msg.RelatedException = e;
+                msg.SetRelatedException(e);
                 Data = null;
             }
 
@@ -135,7 +136,7 @@
             //}
 
             status.TimestampEnd = DateTime.Now;
-            status.MessageDetails = $"Operation took {status.TimeDuration().ToString()}";
+            status.DetailedMessages.Add( $"Operation took {status.TimeDuration().ToString()}");
             return status;
         }
 
@@ -144,7 +145,7 @@
             var status = new StatusMessage(true);
             status.RunningFunctionName = "SaveMediaData";
             status.Message = $"Running {status.RunningFunctionName} [{Environment.Name}] environment.";
-            status.MessageDetails = $"There are {Data.MediaNodes.Count} Media nodes in the Data.";
+            status.DetailedMessages.Add( $"There are {Data.MediaNodes.Count} Media nodes in the Data.");
             //status.RelatedObject = Data;
 
             var fullFilename = EnvironmentFilePath(NodesType.Media, Environment);
@@ -158,7 +159,7 @@
             {
                 status.Success = false;
                 status.Message = $"Unable to save Media data to '{fullFilename}'.";
-                status.RelatedException = e;
+                status.SetRelatedException(e);
             }
 
             status.TimestampEnd = DateTime.Now;

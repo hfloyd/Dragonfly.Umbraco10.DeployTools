@@ -1,4 +1,4 @@
-﻿namespace Dragonfly.Umbraco9DeployTools.Models
+﻿namespace Dragonfly.UmbracoDeployTools.Models
 {
     using System;
     using Umbraco.Cms.Core;
@@ -15,8 +15,8 @@
         public int LevelNum { get; set; }
         public int UniversalSortInt { get; set; }
 
-        [Obsolete("Use the ParentNodeInfo property")]
-        public Udi ParentNodeUdi { get; set; }
+        //[Obsolete("Use the ParentNodeInfo property")]
+        //public Udi ParentNodeUdi { get; set; }
     }
 
     public class NodeDataItem : INodeDataItem
@@ -53,7 +53,7 @@
             this.OrderNum = NodeDataItem.OrderNum;
             this.LevelNum = NodeDataItem.LevelNum;
             this.UniversalSortInt = NodeDataItem.UniversalSortInt;
-            this.ParentNodeUdi = NodeDataItem.ParentNodeUdi;
+           // this.ParentNodeUdi = NodeDataItem.ParentNodeUdi;
         }
     }
 }

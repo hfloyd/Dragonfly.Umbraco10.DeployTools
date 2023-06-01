@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Dragonfly.Umbraco9DeployTools.Models
+﻿namespace Dragonfly.UmbracoDeployTools.Models
 {
-    using Dragonfly.Umbraco9DeployTools.Services;
+    using System;
+    using DeployToolsService = Dragonfly.UmbracoDeployTools.DeployToolsService;
 
     public interface INodesDataFile
     {

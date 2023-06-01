@@ -5,6 +5,17 @@
 
 @if (Model != null)
 {
+	<style>
+		.alert {
+			padding: 5px;
+		}
+
+			.alert h4,
+			.alert p {
+				font-size: 1.25rem;
+			}
+
+	</style>
 	RenderMessage(Model);
 }
 
@@ -14,24 +25,26 @@
 	{
 		var alertClass = Msg.Success ? "alert-success" : "alert-danger";
 		var objPrefix = !string.IsNullOrEmpty(Msg.ObjectName) ? $"{Msg.ObjectName}: " : "";
-		var title =objPrefix + (Msg.HasMessage() ? Msg.Message : $"Status: {(Msg.Success ? "Success": "Failure")}");
+		var title = objPrefix + (Msg.HasMessage() ? Msg.Message : $"Status: {(Msg.Success ? "Success" : "Failure")}");
 
-		<div class="alert @alertClass" style="margin-left: 50px;" role="alert">
+		<div class="alert @alertClass" style="margin-left: 50px;font-size:80%" role="alert">
 			<h4>@title</h4>
 			<p>
-				@if (!string.IsNullOrEmpty(Msg.MessageDetails))
+				@if (Msg.DetailedMessages.Any())
 				{
-					<span><b>Details: </b>@Msg.MessageDetails</span><br />
+					<span>
+						<b>Details: </b>
+						@foreach (var msg in Msg.DetailedMessages)
+						{
+							@msg <br />
+						}
+					</span>
 				}
-				@if (Msg.RelatedException != null)
+				@if (Msg.GetRelatedException() != null)
 				{
-					<h5>Exception:</h5>
-					<span><b>Message: </b>@Msg.RelatedException.Message</span><br />
-					<span><b>Source: </b>@Msg.RelatedException.Source</span><br />
-					<span><b>StackTrace: </b>@Msg.RelatedException.StackTrace</span><br />
-					<textarea rows="20" cols="200">
-						@JsonConvert.SerializeObject(Msg.RelatedException);
-					</textarea>
+					<br />
+					<pre>@Msg.GetRelatedException().Message</pre>
+					ExceptionDetailsLink(Msg.GetRelatedException());
 				}
 			</p>
 			@if (Msg.InnerStatuses.Any())
@@ -43,4 +56,15 @@
 			}
 		</div>
 	}
+
+	private void ExceptionDetailsLink(Exception ExceptionModel)
+	{
+		var exceptionJson = JsonConvert.SerializeObject(ExceptionModel);
+
+		<form action="/umbraco/backoffice/Dragonfly/DeployTools/ViewException" method="post">
+			@Html.Hidden("ExceptionJson", exceptionJson)
+			<button class="btn btn-info btn-sm" value="Submit" type="Submit"><small>Exception Details...</small></button>
+		</form>
+	}
+
 }

@@ -1,10 +1,5 @@
-﻿namespace Dragonfly.Umbraco9DeployTools.Services
+﻿namespace Dragonfly.UmbracoDeployTools.Services
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using Dragonfly.UmbracoServices;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DependencyInjection;
@@ -22,11 +17,11 @@
         public HttpContext Context;
 
         public ServiceContext Services;
-        public FileHelperService DragonflyFileHelperService { get; }
+        public Dragonfly.NetHelperServices.FileHelperService DragonflyFileHelperService { get; }
         public DependencyLoader(
             IHostingEnvironment hostingEnvironment,
             IHttpContextAccessor contextAccessor,
-            FileHelperService fileHelperService,
+            Dragonfly.NetHelperServices.FileHelperService fileHelperService,
             ServiceContext serviceContext
            )
         {

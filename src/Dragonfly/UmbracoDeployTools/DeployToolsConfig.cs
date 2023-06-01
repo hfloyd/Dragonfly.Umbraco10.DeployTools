@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Dragonfly.Umbraco9DeployTools
+﻿namespace Dragonfly.UmbracoDeployTools
 {
-    using Umbraco.Cms.Core.Configuration.Models;
+    using System;
+    using System.Collections.Generic;
 
     public class DeployToolsConfig 
     {
@@ -15,7 +10,6 @@ namespace Dragonfly.Umbraco9DeployTools
 
         public Guid Secret { get; set; }
    
-     
         public List<EnvironmentHost> EnvironmentHosts { get; set; } = new();
 
         #endregion

@@ -1,6 +1,6 @@
 @using Dragonfly.NetModels;
-@using Dragonfly.Umbraco9DeployTools
-@using Dragonfly.Umbraco9DeployTools.Models
+@using Dragonfly.UmbracoDeployTools
+@using Dragonfly.UmbracoDeployTools.Models
 @using Dragonfly.UmbracoHelpers
 @using Newtonsoft.Json
 
@@ -109,12 +109,12 @@
 						<dt class="@colSmClass">Main Message</dt>
 						<dd class="@colLgClass">
 							<b> @paramStatus.Message</b><br />
-							@paramStatus.MessageDetails
-							@if (paramStatus.RelatedException != null)
+							@string.Join("<br/>", paramStatus.DetailedMessages)
+							@if (paramStatus.GetRelatedException() != null)
 							{
 								<br />
-								<pre>@paramStatus.RelatedException.Message</pre>
-								ExceptionDetailsLink(paramStatus.RelatedException);
+								<pre>@paramStatus.GetRelatedException().Message</pre>
+								ExceptionDetailsLink(paramStatus.GetRelatedException());
 							}
 						</dd>
 					</dl>
@@ -125,12 +125,12 @@
 							<dt class="@colSmClass">@result.Code</dt>
 							<dd class="@colLgClass">
 								<b> @result.Message</b><br />
-								@result.MessageDetails
-								@if (result.RelatedException != null)
+								@string.Join("<br/>", result.DetailedMessages)
+								@if (result.GetRelatedException() != null)
 								{
 									<br />
-									<pre>@result.RelatedException.Message</pre>
-									ExceptionDetailsLink(result.RelatedException);
+									<pre>@result.GetRelatedException().Message</pre>
+									ExceptionDetailsLink(result.GetRelatedException());
 								}
 							</dd>
 						</dl>
@@ -144,39 +144,6 @@
 		<p><a class="btn btn-primary" href="@startUrl">Go back to Start Screen</a></p>
 
 	</div>
-
-	@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/dataTables.bootstrap.min.js"></script>
-
-		<script type="text/javascript">
-		$(document).ready(function () {
-
-		// Setup - add a text input to each footer cell
-		$('#umbracodata tfoot th').each(function () {
-		var title = $(this).text();
-		$(this).html('<input type="text" placeholder="Search ' + title + '" />');
-		});
-
-		$('#umbracodata').DataTable({
-		"lengthMenu": [[-1, 10, 25, 50], ["All", 10, 25, 50]]
-		});
-
-		// Apply the search
-		table.columns().every(function () {
-		var that = this;
-
-		$('input', this.footer()).on('keyup change', function () {
-		if (that.search() !== this.value) {
-		that
-		.search(this.value)
-		.draw();
-		}
-		});
-		});
-
-		});
-		</script>*@
 </body>
 </html>
 
@@ -184,17 +151,12 @@
 
 	private void ExceptionDetailsLink(Exception ExceptionModel)
 	{
-		var exceptionId = Guid.NewGuid().ToString();
-		//HttpContext.Current.Session.Add(exceptionId, ExceptionModel);
-		//System.Web.HttpContext.Current.Session[exceptionId] = ExceptionModel;
-
 		var exceptionJson = JsonConvert.SerializeObject(ExceptionModel);
 
-		<form action="/umbraco/backoffice/Dragonfly/ExceptionViewer/" method="post">
+		<form action="/umbraco/backoffice/Dragonfly/DeployTools/ViewException" method="post">
 			@Html.Hidden("ExceptionJson", exceptionJson)
 			<button class="btn btn-info btn-sm" value="Submit" type="Submit"><small>Exception Details...</small></button>
 		</form>
-
 	}
 
 }

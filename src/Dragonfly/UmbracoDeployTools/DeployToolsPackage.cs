@@ -1,12 +1,6 @@
-﻿namespace Dragonfly.Umbraco9DeployTools
+﻿namespace Dragonfly.UmbracoDeployTools
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Umbraco.Cms.Core.Configuration.Models;
-    using Umbraco.Cms.Core.Semver;
 
     /// <summary>
     /// Static class with various information and constants about the package.
@@ -16,12 +10,12 @@
         /// <summary>
         /// Gets the alias of the package.
         /// </summary>
-        public const string Alias = "Dragonfly.Umbraco9DeployTools";
+        public const string Alias = "Dragonfly.UmbracoDeployTools";
 
         /// <summary>
         /// Gets the friendly name of the package.
         /// </summary>
-        public const string Name = "Dragonfly Deploy Tools (for Umbraco 9)";
+        public const string Name = "Dragonfly Deploy Tools (for Umbraco 10+)";
 
         /// <summary>
         /// Gets the version of the package.
@@ -31,19 +25,17 @@
         /// <summary>
         /// Gets the URL of the GitHub repository for this package.
         /// </summary>
-        public const string GitHubUrl = "https://github.com/hfloyd/Dragonfly.Umbraco9DeployTools";
+        public const string GitHubUrl = "https://github.com/hfloyd/Dragonfly.UmbracoDeployTools";
 
         /// <summary>
         /// Gets the URL of the issue tracker for this package.
         /// </summary>
-        public const string IssuesUrl = "https://github.com/hfloyd/Dragonfly.Umbraco9DeployTools/issues";
+        public const string IssuesUrl = "https://github.com/hfloyd/Dragonfly.UmbracoDeployTools/issues";
 
         /// <summary>
         /// Gets the URL of the documentation for this package.
         /// </summary>
-        public const string DocumentationUrl = "https://github.com/hfloyd/Dragonfly.Umbraco9DeployTools#documentation";
-
-
+        public const string DocumentationUrl = "https://github.com/hfloyd/Dragonfly.UmbracoDeployTools#documentation";
 
     }
 

@@ -1,31 +1,18 @@
-﻿namespace Dragonfly.Umbraco9DeployTools.Services
+﻿namespace Dragonfly.UmbracoDeployTools
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics.Eventing.Reader;
-    using System.Drawing;
     using System.IO;
     using System.Linq;
-    using System.Net;
-    using System.Net.Http;
-    using System.Text;
-    using System.Threading.Tasks;
     using Dragonfly.NetModels;
-    using Dragonfly.Umbraco9DeployTools.Models;
-    using Dragonfly.UmbracoServices;
+    using Dragonfly.UmbracoDeployTools.Models;
+    using Dragonfly.UmbracoDeployTools.Services;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
-    using NPoco.Expressions;
-    using Umbraco.Cms.Core;
     using Umbraco.Cms.Core.Hosting;
-    using Umbraco.Cms.Core.Models;
     using Umbraco.Cms.Core.Services;
-    using Umbraco.Cms.Core.Models.PublishedContent;
     using Umbraco.Cms.Web.Common;
-    using Umbraco.Extensions;
 
     public partial class DeployToolsService
     {
@@ -40,7 +27,7 @@
         private readonly IHostingEnvironment _HostingEnvironment;
         private readonly UmbracoHelper _UmbracoHelper;
         private readonly DependencyLoader _Dependencies;
-        private readonly FileHelperService _FileHelperService;
+        private readonly Dragonfly.NetHelperServices.FileHelperService _FileHelperService;
         private readonly HttpContext _Context;
         private readonly ILogger _logger;
         private readonly ServiceContext _services;
@@ -68,7 +55,7 @@
             _logger = logger;
             _services = dependencies.Services;
 
-            var filePath = "/umbraco-cloud.json";
+            var filePath = "umbraco-cloud.json";
             _DeployConfig = LoadDeployConfig(filePath);
         }
 
@@ -77,7 +64,7 @@
             //var config = Config.GetConfig();
             //return config.GetDataPath();
 
-            return "/App_Data/DragonflyDeployTools/";
+            return "~/App_Data/DragonflyDeployTools/";
         }
 
         internal static string PluginPath()
@@ -156,8 +143,8 @@
             comparisons.Add(compLastEditedByUser);
 
             var compParentNodeUdi = new LocalRemoteComparison();
-            var localParentNodeUdi = LocalNode.ParentNodeInfo != null ? LocalNode.ParentNodeInfo.NodeUdi : LocalNode.ParentNodeUdi;
-            var remoteParentNodeUdi = RemoteNode.ParentNodeInfo != null ? RemoteNode.ParentNodeInfo.NodeUdi : RemoteNode.ParentNodeUdi;
+            var localParentNodeUdi = LocalNode.ParentNodeInfo != null ? LocalNode.ParentNodeInfo.NodeUdi : null;
+            var remoteParentNodeUdi = RemoteNode.ParentNodeInfo != null ? RemoteNode.ParentNodeInfo.NodeUdi : null;
             compParentNodeUdi.PropertyName = "ParentNodeUdi";
             compParentNodeUdi.LocalValue = localParentNodeUdi;
             compParentNodeUdi.RemoteValue = remoteParentNodeUdi;
@@ -291,7 +278,7 @@
             {
                 status.Success = false;
                 status.Message = $"Unable to save Sync data to '{fullFilename}'.";
-                status.RelatedException = e;
+                status.SetRelatedException( e);
             }
 
             status.TimestampEnd = DateTime.Now;
@@ -322,7 +309,7 @@
             {
                 msg.Success = false;
                 msg.Message = $"Unable to read data from '{fullFilename}'.";
-                msg.RelatedException = e;
+                msg.SetRelatedException( e);
                 Data = null;
             }
 
@@ -342,10 +329,10 @@
             switch (Type)
             {
                 case NodesType.Content:
-                    baseFilename = CONTENT_FILE_NAME;
+                    baseFilename = DeployToolsService.CONTENT_FILE_NAME;
                     break;
                 case NodesType.Media:
-                    baseFilename = MEDIA_FILE_NAME;
+                    baseFilename = DeployToolsService.MEDIA_FILE_NAME;
                     break;
             }
 
@@ -481,7 +468,7 @@
                         NodesDataFile nodeFile;
                         readStatus = ReadNodesDataFile(fileInfo.FullName, out nodeFile);
 
-                        
+
                         if (nodeFile.Environment != null)
                         {
                             DataList.Add(nodeFile);
@@ -495,7 +482,7 @@
                     {
                         readStatus.Success = false;
                         readStatus.Message = $"GetLocalFilesInfo: Failure getting file '{fileInfo.FullName}'.";
-                        readStatus.RelatedException = e;
+                        readStatus.SetRelatedException( e);
                     }
 
                     if (addStatus)
@@ -544,14 +531,14 @@
                 {
                     msg.Success = false;
                     msg.Message = $"Unable to save data to '{FullFilename}'.";
-                    msg.MessageDetails = "Unknown issue";
+                    msg.DetailedMessages.Add( "Unknown issue");
                 }
             }
             catch (Exception e)
             {
                 msg.Success = false;
                 msg.Message = $"Unable to save data to '{FullFilename}'.";
-                msg.RelatedException = e;
+                msg.SetRelatedException( e);
             }
 
             msg.TimestampEnd = DateTime.Now;
@@ -564,7 +551,9 @@
 
             try
             {
-                var json = _FileHelperService.GetTextFileContents(FilePath);
+	            var mappedPath = Path.Combine(_HostingEnvironment.ApplicationPhysicalPath, FilePath);
+               // var pathIsMappableStatus =_FileHelperService.TryGetMappedPathWithStatus(FilePath, out mappedPath)
+                var json = _FileHelperService.GetTextFileContents(mappedPath);
 
                 var config = JsonConvert.DeserializeObject<CloudDeployConfig>(json);
 
@@ -619,42 +608,53 @@
 
             var filesList = new List<FileInfo>();
 
-            var dirMapped = _FileHelperService.GetMappedPath(DataPath());
+            var dirMapped = "";
+            var pathIsMappableStatus = _FileHelperService.TryGetMappedPathWithStatus(DataPath(), out dirMapped);
 
-            try
+            if (pathIsMappableStatus.Success)
             {
-                var files = Directory.GetFiles(dirMapped).ToList();
-                foreach (var filepath in files)
+                try
                 {
-                    var filename = "";
-                    try
+                    var files = Directory.GetFiles(dirMapped).ToList();
+                    foreach (var filepath in files)
                     {
-                        //filename = filepath.Replace(dirMapped, "");
-                        //   var fileInfo = ParseFilePath(filepath);
-                        var fileInfo = new FileInfo(filepath);
-                        filesList.Add(fileInfo);
-                        //filesList.Add(filename, GetTimestampFromFileName(filename));
-                    }
-                    catch (Exception e)
-                    {
-                        var fileMsg = new StatusMessage(false);
-                        fileMsg.ObjectName = "GetListOfFiles";
-                        returnStatusMsg.Message = $"Error processing file '{filename}'.";
-                        fileMsg.RelatedException = e;
+                        var filename = "";
+                        try
+                        {
+                            //filename = filepath.Replace(dirMapped, "");
+                            //   var fileInfo = ParseFilePath(filepath);
+                            var fileInfo = new FileInfo(filepath);
+                            filesList.Add(fileInfo);
+                            //filesList.Add(filename, GetTimestampFromFileName(filename));
+                        }
+                        catch (Exception e)
+                        {
+                            var fileMsg = new StatusMessage(false);
+                            fileMsg.ObjectName = "GetListOfFiles";
+                            returnStatusMsg.Message = $"Error processing file '{filename}'.";
+                            fileMsg.SetRelatedException( e);
 
-                        returnStatusMsg.InnerStatuses.Add(fileMsg);
+                            returnStatusMsg.InnerStatuses.Add(fileMsg);
+                        }
                     }
                 }
+                //catch (System.IO.DirectoryNotFoundException missingDirEx)
+                //{
+                //    //continue
+                //}
+                catch (Exception e)
+                {
+                    returnStatusMsg.Success = false;
+                    returnStatusMsg.Message = $"Error accessing files in '{dirMapped}'.";
+                    returnStatusMsg.SetRelatedException( e);
+                }
             }
-            //catch (System.IO.DirectoryNotFoundException missingDirEx)
-            //{
-            //    //continue
-            //}
-            catch (Exception e)
+            else
             {
-                returnStatusMsg.Success = false;
+                var fileMsg = pathIsMappableStatus;
+                fileMsg.ObjectName = "GetListOfFiles";
                 returnStatusMsg.Message = $"Error accessing files in '{dirMapped}'.";
-                returnStatusMsg.RelatedException = e;
+                returnStatusMsg.InnerStatuses.Add(fileMsg);
             }
 
             if (filesList.Any())
@@ -694,7 +694,7 @@
             {
                 msg.Success = false;
                 msg.Message = $"Unable to read data from '{fullFilename}'.";
-                msg.RelatedException = e;
+                msg.SetRelatedException( e);
                 Data = new NodesDataFile();
             }
 

@@ -1,16 +1,12 @@
-﻿namespace Dragonfly.Umbraco9DeployTools.Models
+﻿namespace Dragonfly.UmbracoDeployTools.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Dragonfly.Umbraco9DeployTools.Services;
-    using Newtonsoft.Json;
     using Umbraco.Cms.Core;
+    using DeployToolsService = Dragonfly.UmbracoDeployTools.DeployToolsService;
 
 
-    public class MediaNodesDataFile : INodesDataFile
+    public class ContentNodesDataFile : INodesDataFile
     {
         #region Implementation of INodesDataFile
 
@@ -22,25 +18,22 @@
         public int TotalNodes { get; set; }
 
         #endregion
-
-        public List<MediaNodeDataItem> MediaNodes { get; set; }
+        public List<ContentNodeDataItem> ContentNodes { get; set; }
 
         //[Obsolete("Use Environment.Url")]
         //public string EnvironmentHost { get; set; }
-
+        
         //[Obsolete("Use Environment.Name")]
         //public string EnvironmentName { get; set; }
 
         //[Obsolete("Use .GetTimeToGenerateDisplay() method")]
         //public string TimeToGenerateDisplay { get; set; }
-       // public DateTime Timestamp { get; set; }
-
-
+        //public DateTime Timestamp { get; set; }
     }
 
-    
-    public class MediaNodeDataItem : INodeDataItem
+    public class ContentNodeDataItem : INodeDataItem
     {
+
         #region Implementation of INodeDataItem
         public string NodeName { get; set; }
         public int NodeId { get; set; }
@@ -52,14 +45,14 @@
         public int LevelNum { get; set; }
         public int UniversalSortInt { get; set; }
         
-        [Obsolete("Use the ParentNodeInfo property")]
-        public Udi ParentNodeUdi { get; set; }
+      //  [Obsolete("Use the ParentNodeInfo property")]
+       // public Udi ParentNodeUdi { get; set; }
         #endregion
 
-        public string MediaTypeAlias { get; set; }
-        public string FilePath { get; set; }
+        public bool IsPublished { get; set; }
+        public string ContentTypeAlias { get; set; }
 
-        public MediaNodeDataItem(INodeDataItem NodeDataItem)
+        public ContentNodeDataItem(INodeDataItem NodeDataItem)
         {
             this.NodeName = NodeDataItem.NodeName;
             this.NodeId = NodeDataItem.NodeId;
@@ -70,12 +63,13 @@
             this.OrderNum = NodeDataItem.OrderNum;
             this.LevelNum = NodeDataItem.LevelNum;
             this.UniversalSortInt = NodeDataItem.UniversalSortInt;
-            this.ParentNodeUdi = NodeDataItem.ParentNodeUdi;
+            //this.ParentNodeUdi = NodeDataItem.ParentNodeUdi;
         }
 
-        public MediaNodeDataItem()
+        public ContentNodeDataItem()
         {
             
         }
     }
+
 }

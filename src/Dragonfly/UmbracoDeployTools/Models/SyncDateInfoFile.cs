@@ -1,13 +1,10 @@
-﻿namespace Dragonfly.Umbraco9DeployTools.Models
+﻿namespace Dragonfly.UmbracoDeployTools.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Dragonfly.Umbraco9DeployTools.Services;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
+    using DeployToolsService = Dragonfly.UmbracoDeployTools.DeployToolsService;
 
     public class SyncDateInfoFile
     {

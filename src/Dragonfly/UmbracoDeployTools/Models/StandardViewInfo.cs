@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Dragonfly.Umbraco9DeployTools.Models
+﻿namespace Dragonfly.UmbracoDeployTools.Models
 {
+    using System;
+
     public class StandardViewInfo
     {
         /// <summary>

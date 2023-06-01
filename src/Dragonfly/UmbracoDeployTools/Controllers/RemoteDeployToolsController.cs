@@ -1,6 +1,6 @@
 ﻿#pragma warning disable 1591
 
-namespace Dragonfly.Umbraco9DeployTools.Controllers
+namespace Dragonfly.UmbracoDeployTools
 {
     using System;
     using System.IO;
@@ -8,11 +8,9 @@ namespace Dragonfly.Umbraco9DeployTools.Controllers
     using System.Net.Http;
     using System.Text;
     using Dragonfly.NetModels;
-    using Dragonfly.Umbraco9DeployTools.Services;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
-    using Umbraco.Cms.Web.BackOffice.Controllers;
     using Umbraco.Cms.Web.Common.Attributes;
     using Umbraco.Cms.Web.Common.Controllers;
 
@@ -23,9 +21,9 @@ namespace Dragonfly.Umbraco9DeployTools.Controllers
     {
 
         private readonly ILogger<DeployToolsController> _logger;
-        private readonly DeployToolsService _deployToolsService;
+        private readonly UmbracoDeployTools.DeployToolsService _deployToolsService;
 
-        public RemoteDeployToolsController(ILogger<DeployToolsController> logger, DeployToolsService deployToolsService)
+        public RemoteDeployToolsController(ILogger<DeployToolsController> logger, UmbracoDeployTools.DeployToolsService deployToolsService)
         {
             _logger = logger;
             _deployToolsService = deployToolsService;
@@ -145,7 +143,7 @@ namespace Dragonfly.Umbraco9DeployTools.Controllers
                     }
                     catch (Exception ex)
                     {
-                        status.RelatedException = ex;
+                        status.SetRelatedException( ex);
                         status.Success = false;
                         status.Message = "Failure while running Dragonfly DeployTools: ExportContentData";
                         _logger.LogError(ex, status.Message);
@@ -155,8 +153,8 @@ namespace Dragonfly.Umbraco9DeployTools.Controllers
 
                 //Export
                 var thisEnvironment = _deployToolsService.GetCurrentEnvironment();
-                var saveFileName = _deployToolsService.EnvironmentFilePath(DeployToolsService.NodesType.Content, thisEnvironment, true);
-                var fileContents = _deployToolsService.RetrieveFileContents(DeployToolsService.NodesType.Content, thisEnvironment);
+                var saveFileName = _deployToolsService.EnvironmentFilePath(UmbracoDeployTools.DeployToolsService.NodesType.Content, thisEnvironment, true);
+                var fileContents = _deployToolsService.RetrieveFileContents(UmbracoDeployTools.DeployToolsService.NodesType.Content, thisEnvironment);
 
                 if (ReturnType == "File")
                 {
@@ -222,7 +220,7 @@ namespace Dragonfly.Umbraco9DeployTools.Controllers
                     }
                     catch (Exception ex)
                     {
-                        status.RelatedException = ex;
+                        status.SetRelatedException(ex);
                         status.Success = false;
                         status.Message = "Failure while running Dragonfly DeployTools: ExportContentData";
                         _logger.LogError(ex, status.Message);
@@ -232,8 +230,8 @@ namespace Dragonfly.Umbraco9DeployTools.Controllers
 
                 //Export
                 var thisEnvironment = _deployToolsService.GetCurrentEnvironment();
-                var saveFileName = _deployToolsService.EnvironmentFilePath(DeployToolsService.NodesType.Media, thisEnvironment, true);
-                var fileContents = _deployToolsService.RetrieveFileContents(DeployToolsService.NodesType.Media, thisEnvironment);
+                var saveFileName = _deployToolsService.EnvironmentFilePath(UmbracoDeployTools.DeployToolsService.NodesType.Media, thisEnvironment, true);
+                var fileContents = _deployToolsService.RetrieveFileContents(UmbracoDeployTools.DeployToolsService.NodesType.Media, thisEnvironment);
 
                 if (ReturnType == "File")
                 {
@@ -297,7 +295,7 @@ namespace Dragonfly.Umbraco9DeployTools.Controllers
                 }
                 catch (Exception ex)
                 {
-                    status.RelatedException = ex;
+                    status.SetRelatedException(ex);
                     status.Success = false;
                     status.Message = "Failure while running Dragonfly DeployTools: TriggerContentDataSave";
                     _logger.LogError(ex, status.Message);
@@ -354,7 +352,7 @@ namespace Dragonfly.Umbraco9DeployTools.Controllers
                 }
                 catch (Exception ex)
                 {
-                    status.RelatedException = ex;
+                    status.SetRelatedException( ex);
                     status.Success = false;
                     status.Message = "Failure while running Dragonfly DeployTools: TriggerMediaDataSave";
                     _logger.LogError(ex, status.Message);

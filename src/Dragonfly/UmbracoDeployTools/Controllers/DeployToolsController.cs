@@ -1,20 +1,18 @@
 ﻿#pragma warning disable 1591
 
-namespace Dragonfly.Umbraco9DeployTools.Controllers
+namespace Dragonfly.UmbracoDeployTools
 {
     using System;
     using System.Collections.Generic;
     using System.Net.Http;
     using System.Text;
+    using System.Threading.Tasks;
+    using Dragonfly.NetHelperServices;
     using Dragonfly.NetModels;
-    using Dragonfly.Umbraco9DeployTools.Models;
-    using Dragonfly.Umbraco9DeployTools.Services;
+    using Dragonfly.UmbracoDeployTools.Models;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.ViewFeatures;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
-    using NPoco.Expressions;
-    using Umbraco.Cms.Core.Services;
     using Umbraco.Cms.Web.BackOffice.Controllers;
     using Umbraco.Cms.Web.Common.Attributes;
 
@@ -26,23 +24,22 @@ namespace Dragonfly.Umbraco9DeployTools.Controllers
     {
 
         private readonly ILogger<DeployToolsController> _logger;
-        private readonly DeployToolsService _deployToolsService;
+        private readonly UmbracoDeployTools.DeployToolsService _deployToolsService;
         private readonly IViewRenderService _viewRenderService;
 
         public DeployToolsController(
             ILogger<DeployToolsController> logger,
-            DeployToolsService deployToolsService,
+            UmbracoDeployTools.DeployToolsService deployToolsService,
             IViewRenderService viewRenderService)
         {
             _logger = logger;
             _deployToolsService = deployToolsService;
             _viewRenderService = viewRenderService;
-
         }
 
         private string RazorFilesPath()
         {
-            return DeployToolsService.PluginPath() + "RazorViews/";
+            return UmbracoDeployTools.DeployToolsService.PluginPath() + "RazorViews/";
         }
 
         #region Actions (returns StatusMsg)
@@ -60,7 +57,7 @@ namespace Dragonfly.Umbraco9DeployTools.Controllers
             }
             catch (Exception ex)
             {
-                status.RelatedException = ex;
+                status.SetRelatedException(ex);
                 status.Success = false;
                 status.Message = $"Failure while running Dragonfly DeployTools: FetchAllRemoteNodesData('{EnvironmentType}',{UpdateRemoteFirst})";
                 _logger.LogError(ex, status.Message);
@@ -95,7 +92,7 @@ namespace Dragonfly.Umbraco9DeployTools.Controllers
             }
             catch (Exception ex)
             {
-                status.RelatedException = ex;
+                status.SetRelatedException(ex);
                 status.Success = false;
                 status.Message = "Failure while running Dragonfly DeployTools: UpdateAllLocalNodesData";
                 _logger.LogError(ex, status.Message);
@@ -129,7 +126,7 @@ namespace Dragonfly.Umbraco9DeployTools.Controllers
             }
             catch (Exception ex)
             {
-                status.RelatedException = ex;
+                status.SetRelatedException(ex);
                 status.Success = false;
                 status.Message = "Failure while running Dragonfly DeployTools: UpdateLocalContentNodesData";
                 _logger.LogError(ex, status.Message);
@@ -163,7 +160,7 @@ namespace Dragonfly.Umbraco9DeployTools.Controllers
             }
             catch (Exception ex)
             {
-                status.RelatedException = ex;
+                status.SetRelatedException(ex);
                 status.Success = false;
                 status.Message = "Failure while running Dragonfly DeployTools: UpdateLocalMediaNodesData";
                 _logger.LogError(ex, status.Message);
@@ -288,7 +285,7 @@ namespace Dragonfly.Umbraco9DeployTools.Controllers
 
             //GET DATA TO DISPLAY
             SyncDateInfoFile model = new SyncDateInfoFile();
-            var status = _deployToolsService.SetSyncDate(EnvironmentType, DeployToolsService.NodesType.Content, out model);
+            var status = _deployToolsService.SetSyncDate(EnvironmentType, UmbracoDeployTools.DeployToolsService.NodesType.Content, out model);
 
             //VIEW DATA 
             var viewData = new Dictionary<string, object>();
@@ -311,6 +308,48 @@ namespace Dragonfly.Umbraco9DeployTools.Controllers
 
             return new HttpResponseMessageResult(result);
         }
+
+        /// /umbraco/backoffice/Dragonfly/DeployTools/ViewException
+        [HttpPost]
+        public IActionResult ViewException(string ExceptionJson)
+        {
+	        var pvPath = $"{RazorFilesPath()}ExceptionViewer.cshtml";
+
+	        //GET DATA TO DISPLAY
+	        Exception exModel = new Exception("");
+	        if (ExceptionJson != "")
+	        { exModel = JsonConvert.DeserializeObject<Exception>(ExceptionJson)!; }
+
+	        //VIEW DATA 
+	        var viewData = new Dictionary<string, object>();
+	        //viewData.Add("DisplayTitle", $"Add additional variables via the View Data as needed....");
+
+	        //RENDER
+	        var htmlTask = Task.Run(() => _viewRenderService.RenderToStringAsync(this.HttpContext, pvPath, exModel, viewData));
+	        var displayHtml = htmlTask.Result;
+
+	        if (!string.IsNullOrEmpty(displayHtml))
+	        {
+		        //RETURN AS HTML
+		        var result = new HttpResponseMessage()
+		        {
+			        Content = new StringContent(
+				        displayHtml,
+				        Encoding.UTF8,
+				        "text/html"
+			        )
+		        };
+		        return new HttpResponseMessageResult(result);
+	        }
+	        else
+	        {
+		        //string json = JsonConvert.SerializeObject(htmlTask.Exception);
+
+		        return new JsonResult(htmlTask);
+	        }
+
+        }
+
 
         #endregion
 
