@@ -45,7 +45,8 @@
 
         #endregion
 
-        public DeployToolsService(DependencyLoader dependencies, ILogger<DeployToolsService> logger)
+        public DeployToolsService(DependencyLoader dependencies,
+         ILogger<DeployToolsService> logger)
         {
             _Dependencies = dependencies;
             _HostingEnvironment = dependencies.HostingEnvironment;
