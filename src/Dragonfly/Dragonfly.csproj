@@ -9,8 +9,8 @@
 	<!-- Package Description-->
 	<PropertyGroup>
 		<PackageId>Dragonfly.Umbraco10.DeployTools</PackageId>
-		<Title>Dragonfly Umbraco 10 Deploy Tools</Title>
-		<Product>Dragonfly Umbraco 10 Deploy Tools</Product>
+		<Title>Dragonfly Umbraco 10+ Deploy Tools</Title>
+		<Product>Dragonfly Umbraco 10+ Deploy Tools</Product>
 		<Description>Tools to compare Content and Media across Umbraco Deploy environments (min. Umbraco 10.1.0)</Description>
 
 		<PackageProjectUrl>https://dragonflylibraries.com/umbraco-packages/deploy-tools/</PackageProjectUrl>
@@ -18,7 +18,7 @@
 		<RepositoryUrl>https://github.com/hfloyd/Dragonfly.Umbraco10.DeployTools</RepositoryUrl>
 
 		<PackageIcon>Dragonfly-DeployTools-128.png</PackageIcon>
-		<PackageTags>Umbraco;Umbraco-Deploy;umbraco-marketplace;Umbraco-10;Umbraco-11;Umbraco-12</PackageTags>
+		<PackageTags>Umbraco;Umbraco-Deploy;umbraco-marketplace;Umbraco-10;Umbraco-11;Umbraco-12;Umbraco-13</PackageTags>
 	</PropertyGroup>
 
 	<!-- Author Info + Legal-->
@@ -36,7 +36,7 @@
 	<PropertyGroup>
 		<RootNamespace>Dragonfly</RootNamespace>
 		<AssemblyName>Dragonfly.UmbracoDeployTools</AssemblyName>
-		<Version>2.1.1</Version>
+		<Version>2.2.0</Version>
 		<AssemblyVersion>$(Version)</AssemblyVersion>
 		<FileVersion>$(Version)</FileVersion>
 		<PackageReleaseNotes>Fixing dependencies</PackageReleaseNotes>
@@ -64,10 +64,10 @@
 	<!-- Packages-->
 	<ItemGroup>
 		<PackageReference Include="Dragonfly.Net6" Version="1.0.0" />
-			<PackageReference Include="Dragonfly.Umbraco10" Version="1.0.0" />
-		<PackageReference Include="Umbraco.Cms.Core" Version="[10.0.1,13.999.999]" />
-		<PackageReference Include="Umbraco.Cms.Web.Website" Version="[10.0.1,13.999.999]" PrivateAssets="All" />
-		<PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="[10.0.1,13.999.999]" PrivateAssets="All" />
+			<PackageReference Include="Dragonfly.Umbraco10" Version="1.1.0" />
+		<PackageReference Include="Umbraco.Cms.Core" Version="[10.0.1,14.0)" />
+		<PackageReference Include="Umbraco.Cms.Web.Website" Version="[10.0.1,14.0)" PrivateAssets="All" />
+		<PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="[10.0.1,14.0)" PrivateAssets="All" />
 	</ItemGroup>
 
 	<!--Include App_Plugins & targets file-->
