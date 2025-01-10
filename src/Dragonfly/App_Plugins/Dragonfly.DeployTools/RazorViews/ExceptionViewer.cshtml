@@ -1,95 +1,89 @@
-@using Newtonsoft.Json
-
-@model Exception
-
+@inherits UmbracoViewPage<Exception>
 @{
-    var displayTitle = string.Format("Exception Details");
+	Layout = "_Master.cshtml";
 
-    //Column Widths
-    var col1Class = "col-sm-1";
-    var col2Class = "col-sm-11";
+	//Column Widths
+	var col1Class = "col-sm-1";
+	var col2Class = "col-sm-11";
+
+	var packageName = "Dragonfly Deploy Tools";
+	var pageTitle = "Exception Details";
 }
 
-<!DOCTYPE html>
-<html>
-<head>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/css/dataTables.bootstrap.min.css" rel="stylesheet" />
-    <link href="/App_Plugins/Dragonfly.DeployTools/styles.css" rel="stylesheet" />
-    <style>
-        dl {
-            border-width: 1px 0;
-            border-radius: 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
+@section Head {
+	<title>@packageName @pageTitle</title>
+}
 
-        <h1>@displayTitle</h1>
-        @if (Model == null)
-        {<b style="color:red;">No valid Exception to display.</b>}
-        else
-        {
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            @Model.Message
-                        </div>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <dl class="row">
-                        <dt class="@col1Class">Source</dt>
-                        <dd class="@col2Class">@Model.Source</dd>
-                    </dl>
+<!--ExceptionViewer-->
+<div class="container">
+	<h1>@pageTitle</h1>
+	
+	@if (Model == null)
+	{
+		<b style="color:red;">No valid Exception to display.</b>
+	}
+	else
+	{
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div class="row">
+					<div class="col-sm-12">
+						@Model.Message
+					</div>
+				</div>
+			</div>
+			<div class="panel-body">
+				<dl class="row">
+					<dt class="@col1Class">Source</dt>
+					<dd class="@col2Class">@Model.Source</dd>
+				</dl>
 
-                    <dl class="row">
-                        <dt class="@col1Class">Stack Trace</dt>
-                        <dd class="@col2Class">
-                            @Model.StackTrace
-                        </dd>
-                    </dl>
+				<dl class="row">
+					<dt class="@col1Class">Stack Trace</dt>
+					<dd class="@col2Class">
+						@Model.StackTrace
+					</dd>
+				</dl>
 
-                    <dl class="row">
-                        <dt class="@col1Class">Data</dt>
-                        <dd class="@col2Class">@Model.Data</dd>
-                    </dl>
+				<dl class="row">
+					<dt class="@col1Class">Data</dt>
+					<dd class="@col2Class">@Model.Data</dd>
+				</dl>
 
-                    <dl class="row">
-                        <dt class="@col1Class">Inner Exception</dt>
-                        @if (Model.InnerException != null)
-                        {
-                            <dd class="@col2Class">@Model.InnerException.Message  @{ ExceptionDetailsLink(Model.InnerException); }</dd>
-                        }
-                        else
-                        {
-                            <dd class="@col2Class">None</dd>
-                        }
-                    </dl>
-	               @* <dl class="row">
+				<dl class="row">
+					<dt class="@col1Class">Inner Exception</dt>
+					@if (Model.InnerException != null)
+					{
+						<dd class="@col2Class">
+							@Model.InnerException.Message  @{
+								ExceptionDetailsLink(Model.InnerException);
+							}
+						</dd>
+					}
+					else
+					{
+						<dd class="@col2Class">None</dd>
+					}
+				</dl>
+				@* <dl class="row">
 		                <dt class="@col1Class">Full Data</dt>
 		                <textarea rows="20" cols="200">
                             @JsonConvert.SerializeObject(Model);
 											</textarea>
 	                </dl>*@
-                </div>
+			</div>
 
-            </div>
-        }
-    </div>
+		</div>
+	}
+</div>
 
-</body>
-</html>
-
-@functions{
+@functions {
 
 	private void ExceptionDetailsLink(Exception ExceptionModel)
 	{
 		var exceptionJson = JsonConvert.SerializeObject(ExceptionModel);
 
-        <form action="/umbraco/backoffice/Dragonfly/DeployTools/ViewException" method="post">
+		<form action="/umbraco/backoffice/Dragonfly/DeployTools/ViewException" method="post">
 			@Html.Hidden("ExceptionJson", exceptionJson)
 			<button class="btn btn-info btn-sm" value="Submit" type="Submit"><small>Exception Details...</small></button>
 		</form>

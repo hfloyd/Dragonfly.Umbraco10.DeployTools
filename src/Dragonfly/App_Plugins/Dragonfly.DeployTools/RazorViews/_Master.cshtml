@@ -1,0 +1,35 @@
+@inherits UmbracoViewPage<object>
+@{
+	Layout = null;
+
+	var paramStandardInfo = Mvc.GetSafeViewData(ViewData, "StandardInfo", new StandardViewInfo()) as StandardViewInfo;
+	var currVersion = paramStandardInfo != null ? paramStandardInfo.CurrentToolVersion.ToString() : "Unknown";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+
+	<link rel="shortcut icon" type="image/x-icon" href="~/app_plugins/dragonfly.deploytools/dragonfly-deploytools-128.ico">
+	<link rel="shortcut icon" href="~/app_plugins/dragonfly.deploytools/dragonfly-deploytools-128.png">
+
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+	<link href="~/App_Plugins/Dragonfly.DeployTools/styles.css" rel="stylesheet" />
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/dataTables.bootstrap.min.js"></script>
+
+	@*<!--<script src="/scripts/snippet-javascript-console.min.js?v=1"></script>-->*@
+
+	@RenderSection("Head")
+</head>
+<body>
+<div class="container-full" style="margin: 0 10px;">
+	<div class="h3">Dragonfly Deploy Tools <small>v. @currVersion</small></div>
+	@RenderBody()
+</div>
+</body>
+</html>
+

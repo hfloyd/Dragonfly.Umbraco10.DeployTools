@@ -1,14 +1,4 @@
-@using Dragonfly.NetHelpers
-@using Dragonfly.NetModels
-@using Dragonfly.UmbracoDeployTools
-@using Dragonfly.UmbracoDeployTools.Models
-@using Dragonfly.UmbracoHelpers
-
-@using Umbraco.Cms.Core.Services
-@using Umbraco.Extensions
-@inject  ServiceContext Services;
-
-@model ComparisonResults
+@inherits UmbracoViewPage<ComparisonResults>
 @*
 	Expected View Data:
 	-------------------
@@ -18,6 +8,8 @@
 
 *@
 @{
+	Layout = "_Master.cshtml";
+
 	var paramStandardInfo = Mvc.GetSafeViewData(ViewData, "StandardInfo", new StandardViewInfo()) as StandardViewInfo;
 	var paramStatus = Mvc.GetSafeViewData(ViewData, "Status", new StatusMessage()) as StatusMessage;
 	var paramUpdatedSince = Mvc.GetSafeViewData(ViewData, "UpdatedSince");
@@ -26,111 +18,91 @@
 	var hasUpdatedDate = dateUpdatedSince != default(DateTime);
 
 	var results = Model;
+
+	var packageName = "Dragonfly Deploy Tools";
+	var pageTitle = "Comparing Content";
 }
 
-<!DOCTYPE html>
-<html>
-<head>
-	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/css/dataTables.bootstrap.min.css" rel="stylesheet" />
-	<link href="/App_Plugins/Dragonfly.DeployTools/styles.css" rel="stylesheet" />
+@section Head {
+	<title>@packageName @pageTitle</title>
+}
 
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/dataTables.bootstrap.min.js"></script>
+<!--ContentCompare-->
+<h1>@pageTitle</h1>
 
-	<style>
-		.compare-icon.text-warning {
-			color: #f9c36b;
-		}
+@if (paramStatus != null && (paramStatus.HasAnyExceptions() || paramStatus.HasAnyFailures()))
+{
+	<h2>Status</h2>
+	@try
+	{
+		Html.RenderPartial("/App_Plugins/Dragonfly.DeployTools/RazorViews/DataFormats/RenderStatusMessage.cshtml", paramStatus);
+	}
+	catch (Exception e)
+	{
+		<span>Unable to render Status : @e.Message</span>
+	}
 
-		.compare-icon.text-success {
-			color: green;
-		}
-	</style>
-	@*<!--<script src="/scripts/snippet-javascript-console.min.js?v=1"></script>-->*@
-</head>
-<body>
-	<div class="container-full" style="margin: 0 10px;">
+}
 
-		<h1>Comparing Content <small>v. @paramStandardInfo.CurrentToolVersion</small></h1>
+@if (results != null)
+{
+	var syncDateUrl = $"/umbraco/backoffice/Dragonfly/DeployTools/SetContentSyncDate?EnvironmentType={results.RemoteEnvironment.Type}";
+	var remoteNotLocal = results.ContentRemoteNotLocal.ToList();
+	var localNotRemote = results.ContentLocalNotRemote.ToList();
+	var differentNodes = GetDifferentNodesList(results.ContentMatchingNodes, dateUpdatedSince).ToList();
 
-	@if (paramStatus != null && (paramStatus.HasAnyExceptions() || paramStatus.HasAnyFailures()))
-		{
-			<h2>Status</h2>
-			@try
-			{
-				Html.RenderPartial("/App_Plugins/Dragonfly.DeployTools/RazorViews/DataFormats/RenderStatusMessage.cshtml", paramStatus);
-			}
-			catch (Exception e)
-			{
-				<span>Unable to render Status : @e.Message</span>
-			}
+	<h5>Current Environment = @results.LocalEnvironment.Name (@results.LocalDataFileInfo.GetReadableTimestamp(true)) [Version @Model.LocalDataFileInfo.GeneratorVersion.ToString()]</h5>
+	<h5>Remote Environment = @results.RemoteEnvironment.Name (@results.RemoteDataFileInfo.GetReadableTimestamp(true)) [Version @Model.RemoteDataFileInfo.GeneratorVersion.ToString()]</h5>
 
-		}
-
-		@if (results != null)
-		{
-			var syncDateUrl = $"/umbraco/backoffice/Dragonfly/DeployTools/SetContentSyncDate?EnvironmentType={results.RemoteEnvironment.Type}";
-			var remoteNotLocal = results.ContentRemoteNotLocal.ToList();
-			var localNotRemote = results.ContentLocalNotRemote.ToList();
-			var differentNodes = GetDifferentNodesList(results.ContentMatchingNodes, dateUpdatedSince).ToList();
-
-			<h5>Current Environment = @results.LocalEnvironment.Name (@results.LocalDataFileInfo.GetReadableTimestamp(true)) [Version @Model.LocalDataFileInfo.GeneratorVersion.ToString()]</h5>
-			<h5>Remote Environment = @results.RemoteEnvironment.Name (@results.RemoteDataFileInfo.GetReadableTimestamp(true)) [Version @Model.RemoteDataFileInfo.GeneratorVersion.ToString()]</h5>
-
-        <div style="width:900px;">
-        <ul class="nav  nav-justified">
-                <li><a href="#RemoteNotLocal">Remote - Not Local <span class="badge">@remoteNotLocal.Count</span></a></li>
-                <li><a href="#LocalNotRemote">Local - Not Remote <span class="badge">@localNotRemote.Count</span></a></li>
-                <li><a href="#Different">Different Between Environments <span class="badge">@differentNodes.Count</span></a></li>
-			</ul>
-        </div>
-			<h2 id="RemoteNotLocal">Remote - Not Local <br /></h2>
-			<p><small>[Consider Restoring these]</small></p>
-			<p>Total Nodes: @remoteNotLocal.Count</p>
-
-			@if (remoteNotLocal.Any())
-			{
-				RenderMissingFromEnvironmentNodesTable(remoteNotLocal, Model.RemoteEnvironment, true);
-			}
-
-			<h2 id="LocalNotRemote">Local - Not Remote <br /></h2>
-			<p><small>[Consider Transferring these]</small></p>
-			<p>Total Nodes: @localNotRemote.Count</p>
-
-			@if (localNotRemote.Any())
-			{
-				RenderMissingFromEnvironmentNodesTable(localNotRemote, Model.LocalEnvironment, false);
-			}
-
-			<h2 id="Different">Different Between Environments</h2>
-			@if (hasUpdatedDate)
-			{
-				var reRunUrl = $"/umbraco/backoffice/Dragonfly/DeployTools/CompareContent?EnvironmentType={results.RemoteEnvironment.Type}";
-        <p>
-            Only showing content updated on either Environment since: <b>@dateUpdatedSince.GetReadableUtcTimestamp(true)</b>  [@dateUpdatedSince.GetReadableUtcTimestamp(false)]<br />
-            <a style="margin: 2px 0;" class="btn btn-xs btn-info" href="@reRunUrl" target="_blank">Re-run Comparison showing all nodes regardless of Last Edited Date</a>
-        </p>
-			}
-			<p>Different Nodes: @differentNodes.Count</p>
-
-			@if (differentNodes.Any())
-			{
-				RenderNodeDifferencesTable(differentNodes);
-			}
-
-			<div class="well">
-				<h3>Is Everything Synchronized to Your Satisfaction?</h3>
-				<p>By updating the Sync Date for the current environment (@Model.RemoteEnvironment.Name) to the current date, you can later filter the Comparison results to show items which have only changed since then.</p>
-				<a class="btn btn-lg btn-success" href="@syncDateUrl" target="_blank">Update Sync Date</a>
-			</div>
-		}
-
+	<div style="width:900px;">
+		<ul class="nav  nav-justified">
+			<li><a href="#RemoteNotLocal">Remote - Not Local <span class="badge">@remoteNotLocal.Count</span></a></li>
+			<li><a href="#LocalNotRemote">Local - Not Remote <span class="badge">@localNotRemote.Count</span></a></li>
+			<li><a href="#Different">Different Between Environments <span class="badge">@differentNodes.Count</span></a></li>
+		</ul>
 	</div>
+	<h2 id="RemoteNotLocal">Remote - Not Local <br /></h2>
+	<p><small>[Consider Restoring these]</small></p>
+	<p>Total Nodes: @remoteNotLocal.Count</p>
 
-</body>
-</html>
+	@if (remoteNotLocal.Any())
+	{
+		RenderMissingFromEnvironmentNodesTable(remoteNotLocal, Model.RemoteEnvironment, true);
+	}
+
+	<h2 id="LocalNotRemote">Local - Not Remote <br /></h2>
+	<p><small>[Consider Transferring these]</small></p>
+	<p>Total Nodes: @localNotRemote.Count</p>
+
+	@if (localNotRemote.Any())
+	{
+		RenderMissingFromEnvironmentNodesTable(localNotRemote, Model.LocalEnvironment, false);
+	}
+
+	<h2 id="Different">Different Between Environments</h2>
+	@if (hasUpdatedDate)
+	{
+		var reRunUrl = $"/umbraco/backoffice/Dragonfly/DeployTools/CompareContent?EnvironmentType={results.RemoteEnvironment.Type}";
+		<p>
+			Only showing content updated on either Environment since: <b>@dateUpdatedSince.GetReadableUtcTimestamp(true)</b>  [@dateUpdatedSince.GetReadableUtcTimestamp(false)]<br />
+			<a style="margin: 2px 0;" class="btn btn-xs btn-info" href="@reRunUrl" target="_blank">Re-run Comparison showing all nodes regardless of Last Edited Date</a>
+		</p>
+	}
+	<p>Different Nodes: @differentNodes.Count</p>
+
+	@if (differentNodes.Any())
+	{
+		RenderNodeDifferencesTable(differentNodes);
+	}
+
+	<div class="well">
+		<h3>Is Everything Synchronized to Your Satisfaction?</h3>
+		<p>By updating the Sync Date for the current environment (@Model.RemoteEnvironment.Name) to the current date, you can later filter the Comparison results to show items which have only changed since then.</p>
+		<a class="btn btn-lg btn-success" href="@syncDateUrl" target="_blank">Update Sync Date</a>
+	</div>
+}
+
+
 
 @functions {
 
@@ -198,7 +170,7 @@
 						<td>@localContentNode.ContentTypeAlias</td>
 
 						@* //Parent Node*@
-						<td>@(localContentNode.ParentNodeInfo!=null?localContentNode.ParentNodeInfo.NodeName : "UNKNOWN")</td>
+						<td>@(localContentNode.ParentNodeInfo != null ? localContentNode.ParentNodeInfo.NodeName : "UNKNOWN")</td>
 
 						@* //Node Name*@
 						<td>@node.LocalNode.NodeName</td>
@@ -395,7 +367,7 @@
 						<td>@node.ContentTypeAlias</td>
 
 						@* //Parent*@
-						<td><small>@(node.ParentNodeInfo!=null?node.ParentNodeInfo.NodeName : "UNKNOWN")</small></td>
+						<td><small>@(node.ParentNodeInfo != null ? node.ParentNodeInfo.NodeName : "UNKNOWN")</small></td>
 
 						@* //Level*@
 						<td>@node.LevelNum</td>

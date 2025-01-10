@@ -1,6 +1,3 @@
-@using Dragonfly.NetModels;
-@using Newtonsoft.Json
-
 @model StatusMessage
 
 @if (Model != null)
@@ -61,10 +58,10 @@
 	{
 		var exceptionJson = JsonConvert.SerializeObject(ExceptionModel);
 
-		<form action="/umbraco/backoffice/Dragonfly/DeployTools/ViewException" method="post">
-			@Html.Hidden("ExceptionJson", exceptionJson)
-			<button class="btn btn-info btn-sm" value="Submit" type="Submit"><small>Exception Details...</small></button>
-		</form>
+		<!form action="/umbraco/backoffice/Dragonfly/DeployTools/ViewException" method="post">
+					@Html.Hidden("ExceptionJson", exceptionJson)
+				<button class="btn btn-info btn-sm" value="Submit" type="Submit"><small>Exception Details...</small></button>
+		</!form>
 	}
 
 }
