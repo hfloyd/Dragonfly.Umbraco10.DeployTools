@@ -53,7 +53,7 @@
 
             var localSavePathVirtual = EnvironmentFilePath(NodesType.Content, targetEnvironment);
             var localSavePathPhysical = "";
-            var pathIsMappableStatus=_FileHelperService.TryGetMappedPathWithStatus(localSavePathVirtual, out localSavePathPhysical);
+            var pathIsMappableStatus=_FileHelperService.TryGetMappedPathWithStatus(localSavePathVirtual, out localSavePathPhysical, false);
             status.Message = $"Fetching ContentNodesData from {targetEnvironment.Name} to '{localSavePathVirtual}'";
             status.DetailedMessages.Add(localSavePathPhysical);
             status.ObjectName = remoteFileAccessUrl;

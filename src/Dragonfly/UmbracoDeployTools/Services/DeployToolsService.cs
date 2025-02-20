@@ -552,8 +552,8 @@
 
             try
             {
-	            var mappedPath = Path.Combine(_HostingEnvironment.ApplicationPhysicalPath, FilePath);
-               // var pathIsMappableStatus =_FileHelperService.TryGetMappedPathWithStatus(FilePath, out mappedPath)
+	            var mappedPath="";//= Path.Combine(_HostingEnvironment.ApplicationPhysicalPath, FilePath);
+	            var pathIsMappableStatus = _FileHelperService.TryGetMappedPathWithStatus(FilePath, out mappedPath, true);
                 var json = _FileHelperService.GetTextFileContents(mappedPath);
 
                 var config = JsonConvert.DeserializeObject<CloudDeployConfig>(json);
@@ -610,7 +610,7 @@
             var filesList = new List<FileInfo>();
 
             var dirMapped = "";
-            var pathIsMappableStatus = _FileHelperService.TryGetMappedPathWithStatus(DataPath(), out dirMapped);
+            var pathIsMappableStatus = _FileHelperService.TryGetMappedPathWithStatus(DataPath(), out dirMapped, false);
 
             if (pathIsMappableStatus.Success)
             {
